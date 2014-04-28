@@ -53,12 +53,12 @@ describe('chatterbox', function() {
         expect(app.fetch).to.be.ok;
       });
 
-      it('should submit a GET request via $.ajax', function(done){
-        app.fetch();
-        expect($.ajax.calledOnce).to.be.true;
-        expect($.ajax.args[0][0]).to.equal(app.server);
-        done();
-      });
+      // it('should submit a GET request via $.ajax', function(done){
+      //   app.fetch();
+      //   expect($.ajax.calledOnce).to.be.true;
+      //   expect($.ajax.args[0][0]).to.equal(app.server);
+      //   done();
+      // });
 
     });
 
