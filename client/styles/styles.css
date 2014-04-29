@@ -5,6 +5,11 @@ body {
     font-family: arial, sans-serif;
 }
 
+#wrapper{
+    max-width: 1170px;
+    margin: 40px auto;
+}
+
 #main {
     width: 500px;
     margin: auto;
@@ -13,6 +18,7 @@ body {
     padding: 50px 60px;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
+    float:left;
 }
 
 #main h1 {
@@ -81,4 +87,10 @@ form input[type=text] {
 
 .spinner img {
     padding: 10px;
+}
+
+#sideBar {
+    width:25%;
+    float:right;
+    margin-left: 20px;
 }
