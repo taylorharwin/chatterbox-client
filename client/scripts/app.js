@@ -8,7 +8,7 @@ app.init();
 });
 
 var app = {
-  friendList: [],
+  friendList: {},
   currentRoom: 'Lobby',
   activeRooms: {}
 };
@@ -18,12 +18,12 @@ app.init = function(){
   var $main = $('#main');
   $main.append($('<div id="chats"></div>'));
   $main.prepend($('<ul id="roomSelect"></ul>'));
-  $('#wrapper').append($('<div id="sideBar"><h2>'+ app.username +'</h2><ul id="friendList"></ul></div>'));
+  $('#wrapper').append($('<div id="sideBar"><h1>'+ app.username +'<h2>Friends List</h2><ul id="friendList"></ul></div>'));
   $('#chats').on('click','h2',app.addFriend);
   $('#send').on('submit',app.handleSubmit);
   $('#roomSelect').on('click','li', function(event){
     app.currentRoom = $(event.target).data('roomname');
-    $('.activeRoom').removeClass();
+    $('.activeRoom').removeClass('.activeRoom');
     $(event.target).addClass('activeRoom');
     app.fetch('where={"roomname":"'+app.currentRoom+'"}');
   });
@@ -75,8 +75,11 @@ app.clearMessages = function(selector){
 
 app.addMessage = function(message){
   message.username = message.username || app.username;
+  if (message.username === "username") {
+    message.username = "Username";
+  }
   $('#chats').append('<div class="chat">'
-    + '<h2 class="username">' + message.username + '<h2>'
+    + '<h2 class="username ' + app.stripNonWordChars(message.username) + '">'+ message.username +'<h2>'
     + '<span class="datestamp">' + message.createdAt + '</span>'
     + '<p>' + message.text + '</p>'
     + '<span class="roomname">' + message.roomname + '</span>'
@@ -100,7 +103,7 @@ app.renderAllMessages = function(data){
       // console.dir(chat);
       var safeChat = {};
       _.each(chat, function(val, key){
-        safeChat[app.escapeXSS(key)]= app.escapeXSS(val);
+        safeChat[app.stripNonWordChars(key)]= app.stripNonWordChars(val);
       });
       app.addMessage(safeChat);
   });
@@ -112,6 +115,12 @@ app.renderExtraMessages = function(){
 };
 app.extractRooms = function(data){
   _.each(data, function(value){
+    if (value.roomname === undefined || value.roomname === 'undefined' || value.roomname === ""){
+      value.roomname = 'Lobby';
+    }
+    console.log(value.roomname);
+    value.roomname = app.stripNonWordChars(value.roomname);
+    console.log("final room name " + value.roomname);
     app.activeRooms[value.roomname] = true;
   });
 };
@@ -119,7 +128,7 @@ app.extractRooms = function(data){
 app.renderRoomNames = function(){
   var roomListHTML = '';
   _.each(app.activeRooms, function(value, key){
-    roomListHTML += '<li class="'+ key +'" data-roomname="'+key+'">'+ key + '</li>\n';
+    roomListHTML += '<li class="'+ app.stripNonWordChars(key) +'" data-roomname="'+key+'">'+ key + '</li>\n';
   });
   console.log(roomListHTML);
   $('#roomSelect').html($(roomListHTML));
@@ -131,7 +140,19 @@ app.addRoom = function(roomname){
 };
 
 app.addFriend = function(event) {
-  $('#friendList').append($('<li>' + event.target.innerHTML + '</li>'));
+  var friendName = app.stripNonWordChars(event.target.innerHTML);
+  app.friendList[friendName] = friendName;
+  $('#chats .username.activeFriend').removeClass('activeFriend');
+  $('#chats .username.' + app.stripNonWordChars(event.target.innerHTML)).addClass('activeFriend');
+  app.listFriends();
+};
+
+app.listFriends = function(){
+  var allNames = '';
+  _.each(Object.keys(app.friendList), function(name){
+    allNames += '<li>' + name + '</li>';
+  });
+  $('#friendList').html(allNames);
 };
 
 app.handleSubmit = function(event) {
@@ -160,7 +181,7 @@ app.getQueryVariable = function(variable) {
     // console.log('Query variable %s not found', variable);
 };
 
-app.escapeXSS = function(string){
+app.escapeXSS = function(string, strip){
   var entityMap = {
     "&": "&amp;",
     "<": "&lt;",
@@ -169,8 +190,13 @@ app.escapeXSS = function(string){
     "'": '&#39;',
     "/": '&#x2F;'
   };
-  return String(string).replace(/[&<>"'\/]/g, function (s) {
-    return entityMap[s];
-  });
+  return strip ?  String(string).replace(/[\s&<>"\/]/g, '') :
+    String(string).replace(/[&<>"'\/]/g, function (s) {
+      return entityMap[s];
+    });
+};
+
+app.stripNonWordChars = function(string) {
+  return String(string).replace(/[\W]/g,'');
 };
 

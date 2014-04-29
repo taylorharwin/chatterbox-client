@@ -117,6 +117,10 @@ form input[type=text] {
     background-color: #a2caec
 }
 
+.chat .username.activeFriend {
+    font-weight: bold;
+}
+
 #roomSelect {
     list-style-type: none;
     margin: 0;
