@@ -19,6 +19,7 @@ body {
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
     float:left;
+    font-weight: normal;
 }
 
 #main h1 {
@@ -26,6 +27,11 @@ body {
     font-size: 35px;
     margin-bottom: 5px;
     padding: 5px;
+}
+
+h2,h3 {
+    font-weight: normal;
+    font-size: 1em;
 }
 
 #main h1 span {
@@ -56,6 +62,8 @@ form {
     padding: 20px;
     padding-left: 0;
     margin-bottom: 20px;
+    width: 15%;
+    float:left
 }
 
 form input[type=text] {
@@ -65,6 +73,14 @@ form input[type=text] {
     padding: 5px;
 }
 
+.chat .datestamp {
+    font-size: .5em;
+}
+
+.chat .roomname {
+    color: #444;
+}
+
 .chat {
     padding: 5px;
     margin-bottom: 5px;
@@ -72,7 +88,7 @@ form input[type=text] {
 }
 
 .chat .username {
-    font-weight: 800;
+    font-weight: 400;
 }
 
 .chat:hover {
