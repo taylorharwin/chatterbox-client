@@ -10,17 +10,23 @@ app.init();
 var app = {
   friendList: [],
   currentRoom: 'Lobby',
-  activeRooms: []
+  activeRooms: {}
 };
 
 app.init = function(){
   $('#wrapper').prepend($('<form id="send"><input class="message" type="text"><button class="submit">Send</button></form>'));
   var $main = $('#main');
   $main.append($('<div id="chats"></div>'));
-  $main.append($('<ul id="roomSelect"></ul>'));
+  $main.prepend($('<ul id="roomSelect"></ul>'));
   $('#wrapper').append($('<div id="sideBar"><h2>'+ app.username +'</h2><ul id="friendList"></ul></div>'));
   $('#chats').on('click','h2',app.addFriend);
   $('#send').on('submit',app.handleSubmit);
+  $('#roomSelect').on('click','li', function(event){
+    app.currentRoom = $(event.target).data('roomname');
+    $('.activeRoom').removeClass();
+    $(event.target).addClass('activeRoom');
+    app.fetch('where={"roomname":"'+app.currentRoom+'"}');
+  });
 };
 
 app.send = function(message){
@@ -50,7 +56,9 @@ app.fetch = function(constraint){
     data: encodeURI(constraint),
     contentType: 'application/json',
     success: function (data) {
-      app.renderAllMessages(data);
+      app.extractRooms(data.results);
+      app.renderRoomNames();
+      app.renderAllMessages(data.results);
       // console.log('chatterbox: Messages fetched');
     },
     error: function (data) {
@@ -87,7 +95,7 @@ app.displayMessages = function(){
 
 app.renderAllMessages = function(data){
   $('#chats').html('');
-  _.each(data.results, function(chat, index){
+  _.each(data, function(chat, index){
       // console.dir("Sent from Render all messages");
       // console.dir(chat);
       var safeChat = {};
@@ -102,8 +110,21 @@ app.renderAllMessages = function(data){
 app.renderExtraMessages = function(){
 
 };
+app.extractRooms = function(data){
+  _.each(data, function(value){
+    app.activeRooms[value.roomname] = true;
+  });
+};
 
-
+app.renderRoomNames = function(){
+  var roomListHTML = '';
+  _.each(app.activeRooms, function(value, key){
+    roomListHTML += '<li class="'+ key +'" data-roomname="'+key+'">'+ key + '</li>\n';
+  });
+  console.log(roomListHTML);
+  $('#roomSelect').html($(roomListHTML));
+  $('#roomSelect .' + app.currentRoom).attr('class', 'activeRoom');
+};
 
 app.addRoom = function(roomname){
   $('#roomSelect').append('<li id="' + roomname + '">' + roomname + '</li>');

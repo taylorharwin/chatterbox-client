@@ -110,3 +110,8 @@ form input[type=text] {
     float:right;
     margin-left: 20px;
 }
+
+.activeRoom {
+    font-size: 2em;
+    background-color: red
+}
